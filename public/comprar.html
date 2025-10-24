@@ -33,12 +33,15 @@
           </div>
         </div>
         <div id="boletos" class="boletos-grid" aria-live="polite"></div>
+
         <form class="form-row" id="compraForm" onsubmit="return false;">
           <input type="text" id="nombre" placeholder="Nombre completo" required>
           <input type="email" id="correo" placeholder="Correo electrónico" required>
           <input type="text" id="telefono" placeholder="Teléfono" required>
           <input type="hidden" id="seleccionados">
+          <button class="btn" id="confirmarCompra">Confirmar Compra</button>
         </form>
+
         <p class="note">Los boletos ocupados aparecen en <strong>rojo</strong>. Los seleccionados en <strong>amarillo</strong>.</p>
       </div>
     </section>
