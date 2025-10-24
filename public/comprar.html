@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Comprar Boletos - Moto Rifas Universal</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h1 class="brand">Moto Rifas Universal</h1>
+      <p class="tag">Comprar boletos</p>
+    </div>
+  </header>
+  <nav class="nav">
+    <a href="index.html">Inicio</a>
+    <a href="comprar.html">Comprar boletos</a>
+    <a href="participantes.html">Participantes</a>
+    <a href="pagos.html">Cómo pagar</a>
+    <a href="privacidad.html">Aviso de privacidad</a>
+    <a href="contacto.html">Contacto</a>
+  </nav>
+  <main>
+    <section class="section">
+      <div class="container">
+        <h2>Comprar boletos</h2>
+        <div class="controls">
+          <div id="stats" class="stats">Cargando...</div>
+          <div class="actions">
+            <button class="btn" id="limpiar">Limpiar selección</button>
+            <button class="btn" id="comprar">Comprar</button>
+          </div>
+        </div>
+        <div id="boletos" class="boletos-grid" aria-live="polite"></div>
+        <form class="form-row" id="compraForm" onsubmit="return false;">
+          <input type="text" id="nombre" placeholder="Nombre completo" required>
+          <input type="email" id="correo" placeholder="Correo electrónico" required>
+          <input type="text" id="telefono" placeholder="Teléfono" required>
+          <input type="hidden" id="seleccionados">
+        </form>
+        <p class="note">Los boletos ocupados aparecen en <strong>rojo</strong>. Los seleccionados en <strong>amarillo</strong>.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="footer">
+    <div class="container">&copy; 2025 Moto Rifas Universal</div>
+  </footer>
+  <script src="js/boletos.js"></script>
+</body>
+</html>

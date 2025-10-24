@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Información de Pago - Moto Rifas Universal</title><link rel="stylesheet" href="css/style.css"><style>.payment-box{max-width:900px;margin:40px auto;padding:30px;background:#fff;border-radius:8px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.08)}.payment-title{font-size:28px;font-weight:800;color:#c00;margin-bottom:10px}.payment-sub{font-size:18px;color:#333;margin-bottom:18px}.account{font-size:20px;font-weight:700;margin-bottom:12px}.whatsapp{display:inline-block;padding:12px 18px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;margin-top:12px}.small{font-size:14px;color:#555}</style></head><body>
+  <header class="header"><div class="container"><h1 class="brand">Moto Rifas Universal</h1></div></header>
+  <nav class="nav"><a href="index.html">Inicio</a><a href="comprar.html">Comprar boletos</a><a href="participantes.html">Participantes</a><a href="pagos.html">Cómo pagar</a><a href="privacidad.html">Aviso de privacidad</a><a href="contacto.html">Contacto</a></nav>
+  <main>
+    <div class="payment-box" id="paymentBox">
+      <div class="payment-title">INFORMACIÓN DE PAGO 
+        NUMERO DE TARJETA 
+        <h1>4152 3142 8028 1893</h1><h3>BBVA</h3>
+        YAHIR BELISARIO</div>
+      <div id="details"></div>
+      <div class="small" style="margin-top:18px">Debes realizar el pago y enviar tu comprobante de pago al WhatsApp <strong>(9192682654)</strong></div>
+      <div id="waLinkArea"></div>
+    </div>
+  </main>
+  <footer class="footer"><div class="container">&copy; 2025 Moto Rifas Universal</div></footer>
+<script>
+(async function(){
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  const details = document.getElementById('details');
+  const waArea = document.getElementById('waLinkArea');
+  if(!id){ details.innerHTML = '<p>No se especificó compra reciente. Vuelve a comprar e intenta de nuevo.</p>'; return; }
+  const res = await fetch('/api/venta/' + encodeURIComponent(id));
+  if(res.status!==200){ details.innerHTML = '<p>No se encontró la compra.</p>'; return; }
+  const compra = await res.json();
+  // fetch state for price
+  const state = await (await fetch('/api/state')).json();
+  const price = state.ticketPrice || 5;
+  const boletos = compra.boletos.join(', ');
+  const total = compra.boletos.length * price;
+  details.innerHTML = `<div class="payment-sub">Nombre: <strong>${compra.nombre}</strong></div>
+                       <div class="payment-sub">Correo: <strong>${compra.correo}</strong></div>
+                       <div class="payment-sub">Teléfono: <strong>${compra.telefono}</strong></div>
+                       <div class="account">Boletos: <strong>${boletos}</strong></div>
+                       <div class="account">Total a pagar: <strong>$${total}</strong></div>
+                       <div class="small">Gracias por tu Compra: <strong>[MUCHA SUERTE]</strong></div>`;
+  const countryCode = '52';
+  const rawNumber = '9192682654';
+  const waNumber = countryCode + rawNumber;
+  const msg = `He comprado el/los boleto(s): ${boletos}. Nombre: ${compra.nombre}. Correo: ${compra.correo}. Teléfono: ${compra.telefono}.`;
+  const waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(msg);
+  waArea.innerHTML = `<a class="whatsapp" href="${waUrl}" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a>`;
+})();
+</script>
+</body></html>

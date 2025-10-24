@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Participantes - Moto Rifas Universal</title>
+<link rel="stylesheet" href="css/style.css">
+<style>.participant{border-bottom:1px solid #eee;padding:8px;margin-bottom:6px}</style>
+</head>
+<body>
+<header class="header"><div class="container"><h1 class="brand">Moto Rifas Universal</h1></div></header>
+<nav class="nav"><a href="index.html">Inicio</a><a href="comprar.html">Comprar boletos</a><a href="participantes.html">Participantes</a><a href="pagos.html">Cómo pagar</a><a href="privacidad.html">Aviso de privacidad</a><a href="contacto.html">Contacto</a></nav>
+<main><div class="container">
+<h2>Participantes</h2>
+<div id="participantsList">Cargando participantes...</div>
+</div></main>
+<footer class="footer"><div class="container">&copy; 2025 Moto Rifas Universal</div></footer>
+<script>
+async function loadParticipants(){
+  const el = document.getElementById('participantsList');
+  try {
+    const res = await fetch('/api/participantes');
+    const data = await res.json();
+    if(data.length === 0) el.innerHTML = '<p>No hay participantes confirmados aún.</p>';
+    else el.innerHTML = data.map(p=>`<div class="participant"><strong>${p.nombre}</strong> — Boletos: ${p.boletos.join(', ')}</div>`).join('');
+  } catch(e){
+    el.innerHTML = '<p>No se pudo cargar participantes.</p>';
+    console.error(e);
+  }
+}
+loadParticipants();
+</script>
+</body></html>
