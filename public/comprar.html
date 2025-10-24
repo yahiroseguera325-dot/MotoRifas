@@ -5,6 +5,32 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Comprar Boletos - Moto Rifas Universal</title>
   <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* Modal base */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .modal-content input, .modal-content select {
+      margin: 8px 0;
+      width: 80%;
+      padding: 8px;
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -13,6 +39,7 @@
       <p class="tag">Comprar boletos</p>
     </div>
   </header>
+
   <nav class="nav">
     <a href="index.html">Inicio</a>
     <a href="comprar.html" class="active">Comprar boletos</a>
@@ -26,12 +53,13 @@
     <section class="section">
       <div class="container">
         <h2>Comprar boletos</h2>
+
         <div class="controls">
           <div id="stats" class="stats">Cargando...</div>
           <div class="actions">
             <button class="btn" id="limpiar">Limpiar selección</button>
             <button class="btn" id="comprar">Comprar</button>
-            <button class="btn" id="azar">Elegir boletos al azar</button>
+            <button class="btn" id="azarBtn">Elegir boletos al azar</button>
           </div>
         </div>
 
@@ -45,16 +73,19 @@
           <button class="btn" id="confirmarCompra">Confirmar Compra</button>
         </form>
 
-        <p class="note">Los boletos ocupados aparecen en <strong>rojo</strong>. Los seleccionados en <strong>amarillo</strong>.</p>
+        <p class="note">
+          Los boletos ocupados aparecen en <strong>rojo</strong>.  
+          Los seleccionados en <strong>amarillo</strong>.
+        </p>
       </div>
     </section>
   </main>
 
   <!-- Modal para selección al azar -->
-  <div id="modalAzar" class="modal">
+  <div id="azarModal" class="modal">
     <div class="modal-content">
       <h3>Elegir boletos al azar</h3>
-      <label for="cantidadSelect">¿Cuántos boletos quieres?</label>
+      <label>Selecciona cantidad (1-5):</label>
       <select id="cantidadSelect">
         <option value="1">1 boleto</option>
         <option value="2">2 boletos</option>
@@ -62,14 +93,11 @@
         <option value="4">4 boletos</option>
         <option value="5">5 boletos</option>
       </select>
-
       <p>O escribe una cantidad personalizada:</p>
-      <input type="number" id="cantidadPersonal" min="1" placeholder="Ejemplo: 20" />
-
-      <div class="modal-buttons">
-        <button class="btn" id="buscarAzar">Buscar boletos</button>
-        <button class="btn btn-cancel" id="cerrarModal">Cancelar</button>
-      </div>
+      <input type="number" id="cantidadInput" min="1" placeholder="Ej: 10">
+      <button class="btn" id="buscarAzar">Buscar boletos</button>
+      <div id="listaAzar"></div>
+      <button class="btn" id="cerrarAzar">Cerrar</button>
     </div>
   </div>
 
