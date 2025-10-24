@@ -15,12 +15,13 @@
   </header>
   <nav class="nav">
     <a href="index.html">Inicio</a>
-    <a href="comprar.html">Comprar boletos</a>
+    <a href="comprar.html" class="active">Comprar boletos</a>
     <a href="participantes.html">Participantes</a>
     <a href="pagos.html">Cómo pagar</a>
     <a href="privacidad.html">Aviso de privacidad</a>
     <a href="contacto.html">Contacto</a>
   </nav>
+
   <main>
     <section class="section">
       <div class="container">
@@ -30,8 +31,10 @@
           <div class="actions">
             <button class="btn" id="limpiar">Limpiar selección</button>
             <button class="btn" id="comprar">Comprar</button>
+            <button class="btn" id="azar">Elegir boletos al azar</button>
           </div>
         </div>
+
         <div id="boletos" class="boletos-grid" aria-live="polite"></div>
 
         <form class="form-row" id="compraForm" onsubmit="return false;">
@@ -46,9 +49,34 @@
       </div>
     </section>
   </main>
+
+  <!-- Modal para selección al azar -->
+  <div id="modalAzar" class="modal">
+    <div class="modal-content">
+      <h3>Elegir boletos al azar</h3>
+      <label for="cantidadSelect">¿Cuántos boletos quieres?</label>
+      <select id="cantidadSelect">
+        <option value="1">1 boleto</option>
+        <option value="2">2 boletos</option>
+        <option value="3">3 boletos</option>
+        <option value="4">4 boletos</option>
+        <option value="5">5 boletos</option>
+      </select>
+
+      <p>O escribe una cantidad personalizada:</p>
+      <input type="number" id="cantidadPersonal" min="1" placeholder="Ejemplo: 20" />
+
+      <div class="modal-buttons">
+        <button class="btn" id="buscarAzar">Buscar boletos</button>
+        <button class="btn btn-cancel" id="cerrarModal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="container">&copy; 2025 Moto Rifas Universal</div>
   </footer>
+
   <script src="js/boletos.js"></script>
 </body>
 </html>
