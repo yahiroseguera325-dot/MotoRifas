@@ -1,8 +1,6 @@
-// Frontend boleto logic with server integration
 document.addEventListener('DOMContentLoaded', function() {
   const container = document.getElementById('boletos');
   if (!container) return;
-
   let totalBoletos = 100;
   let ticketPrice = 5;
   const seleccionados = new Set();
@@ -16,14 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
       console.warn('No se pudo conectar al servidor, usando datos locales', e);
       data = { ocupados: [], totalBoletos: 100, ticketPrice: 5 };
     }
-
     totalBoletos = data.totalBoletos;
     ticketPrice = data.ticketPrice;
     buildGrid(data.ocupados || []);
-
-    // mostrar precio
-    const priceEl = document.getElementById('priceInfo');
-    if (priceEl) priceEl.textContent = `Precio por boleto: $${ticketPrice}`;
   }
 
   function buildGrid(ocupados) {
@@ -33,13 +26,11 @@ document.addEventListener('DOMContentLoaded', function() {
       const el = document.createElement('div');
       el.className = 'boleto';
       el.textContent = num;
-
       if (ocupados.includes(num)) {
         el.classList.add('ocupado');
       } else {
         el.addEventListener('click', () => toggle(el, num));
       }
-
       container.appendChild(el);
     }
     updateCounter();
@@ -74,29 +65,30 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCounter();
   });
 
-  document.getElementById('comprar').addEventListener('click', async () => {
+  // Scroll al formulario al hacer click en "Comprar"
+  document.getElementById('comprar').addEventListener('click', () => {
+    const form = document.getElementById('compraForm');
+    if (form) {
+      form.scrollIntoView({ behavior: 'smooth' });
+      const primerCampo = form.querySelector('input');
+      if (primerCampo) primerCampo.focus();
+    }
+  });
+
+  // Confirmar compra desde el formulario
+  document.getElementById('confirmarCompra').addEventListener('click', async () => {
     const nombre = document.getElementById('nombre').value.trim();
     const correo = document.getElementById('correo').value.trim();
     const telefono = document.getElementById('telefono').value.trim();
-
-    if (seleccionados.size === 0) {
-      alert('Selecciona al menos un boleto');
-      return;
-    }
-    if (!nombre || !correo || !telefono) {
-      alert('Completa tus datos');
-      return;
-    }
-
+    if (seleccionados.size === 0) { alert('Selecciona al menos un boleto'); return; }
+    if (!nombre || !correo || !telefono) { alert('Completa tus datos'); return; }
     const boletos = Array.from(seleccionados);
-
     try {
       const res = await fetch('/api/comprar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, correo, telefono, boletos })
       });
-
       if (res.ok) {
         const data = await res.json();
         seleccionados.clear();
@@ -113,11 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Exponer función para refrescar boletos desde admin
-  window.refreshBoletos = async function() {
-    await loadState();
-  };
-
-  // Cargar estado inicial
+  window.refreshBoletos = async function() { await loadState(); };
   loadState();
 });
