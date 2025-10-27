@@ -30,6 +30,35 @@
       width: 80%;
       padding: 8px;
     }
+
+    /* 🔍 Estilo buscador */
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+    .search-box input {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 160px;
+      font-size: 14px;
+    }
+    .search-box button {
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .search-box button:hover {
+      background: #ffd84d;
+    }
   </style>
 </head>
 <body>
@@ -63,6 +92,14 @@
           </div>
         </div>
 
+        <!-- 🔍 Buscador -->
+        <div class="search-box">
+          <input type="number" id="buscarNumero" placeholder="Buscar boleto...">
+          <button id="buscarBtn" title="Buscar boleto">
+            🔍
+          </button>
+        </div>
+
         <div id="boletos" class="boletos-grid" aria-live="polite"></div>
 
         <form class="form-row" id="compraForm" onsubmit="return false;">
@@ -74,7 +111,7 @@
         </form>
 
         <p class="note">
-          Los boletos ocupados aparecen en <strong>rojo</strong>.  
+          Los boletos ocupados aparecen en <strong>rojo</strong>.<br>
           Los seleccionados en <strong>amarillo</strong>.
         </p>
       </div>
