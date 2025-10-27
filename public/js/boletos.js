@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const seleccionados = new Set();
   let ocupadosGlobal = [];
 
+  // === CARGAR ESTADO INICIAL ===
   async function loadState() {
     let data;
     try {
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     buildGrid(ocupadosGlobal);
   }
 
+  // === CREAR GRILLA DE BOLETOS ===
   function buildGrid(ocupados) {
     container.innerHTML = '';
     for (let i = 1; i <= totalBoletos; i++) {
@@ -42,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCounter();
   }
 
+  // === ACTUALIZAR CONTADOR ===
   function updateCounter() {
     const ocup = container.querySelectorAll('.boleto.ocupado').length;
     const disponibles = totalBoletos - ocup;
@@ -51,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (totEl) totEl.textContent = `Total a pagar: $${total}`;
   }
 
+  // === SELECCIONAR O QUITAR BOLETO ===
   function toggle(el, num) {
     if (el.classList.contains('ocupado')) return;
     if (el.classList.contains('seleccionado')) {
@@ -64,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCounter();
   }
 
-  // Limpiar selección
+  // === LIMPIAR SELECCIÓN ===
   document.getElementById('limpiar').addEventListener('click', () => {
     seleccionados.clear();
     document.querySelectorAll('.boleto.seleccionado').forEach(b => b.classList.remove('seleccionado'));
@@ -72,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCounter();
   });
 
-  // Scroll al formulario al hacer click en "Comprar"
+  // === SCROLL AUTOMÁTICO AL FORMULARIO ===
   document.getElementById('comprar').addEventListener('click', () => {
     const form = document.getElementById('compraForm');
     if (form) {
@@ -82,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Confirmar compra
+  // === CONFIRMAR COMPRA ===
   document.getElementById('confirmarCompra').addEventListener('click', async () => {
     const nombre = document.getElementById('nombre').value.trim();
     const correo = document.getElementById('correo').value.trim();
@@ -128,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const buscarAzar = document.getElementById('buscarAzar');
   const cerrarAzar = document.getElementById('cerrarAzar');
   const listaAzar = document.getElementById('listaAzar');
-  let boletosAzarSeleccionados = [];
 
   azarBtn.addEventListener('click', () => {
     azarModal.style.display = 'flex';
@@ -161,56 +164,65 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    // Elegir boletos aleatorios
     const elegidos = [];
     while (elegidos.length < cantidad && disponibles.length > 0) {
       const idx = Math.floor(Math.random() * disponibles.length);
       elegidos.push(disponibles.splice(idx, 1)[0]);
     }
 
-    boletosAzarSeleccionados = elegidos;
-    listaAzar.innerHTML = `
-      <p>Boletos elegidos al azar:</p>
-      <strong>${elegidos.join(', ')}</strong>
-      <div style="margin-top:10px;">
-        <button class="btn" id="confirmarAzar">Elegir boletos</button>
-      </div>
-    `;
-
-    document.getElementById('confirmarAzar').addEventListener('click', () => {
-      seleccionarBoletosAzar();
-    });
-  });
-
-  // Seleccionar boletos al azar y bajar al formulario
-  function seleccionarBoletosAzar() {
+    // Limpiar selección anterior
     seleccionados.clear();
     document.querySelectorAll('.boleto.seleccionado').forEach(b => b.classList.remove('seleccionado'));
 
-    boletosAzarSeleccionados.forEach(num => {
+    // Marcar seleccionados
+    elegidos.forEach(num => {
       const el = Array.from(document.querySelectorAll('.boleto')).find(b => b.textContent === num);
       if (el) {
-        el.classList.add('seleccionado');
+        el.classList.add('seleccionado', 'brillo');
         seleccionados.add(num);
+        setTimeout(() => el.classList.remove('brillo'), 2000);
       }
     });
 
-    document.getElementById('seleccionados').value = boletosAzarSeleccionados.join(', ');
-    updateCounter();
+    document.getElementById('seleccionados').value = elegidos.join(', ');
+    listaAzar.innerHTML = `
+      <p>Boletos elegidos al azar:</p>
+      <strong>${elegidos.join(', ')}</strong>
+      <br><br>
+      <button class="btn" id="usarAzar">Elegir estos boletos</button>
+    `;
 
-    // Cierra el modal y baja al formulario
-    azarModal.style.display = 'none';
-    const form = document.getElementById('compraForm');
-    if (form) {
+    // Confirmar selección al azar
+    document.getElementById('usarAzar').addEventListener('click', () => {
+      azarModal.style.display = 'none';
+      const form = document.getElementById('compraForm');
       form.scrollIntoView({ behavior: 'smooth' });
-      const primerCampo = form.querySelector('input');
-      if (primerCampo) primerCampo.focus();
-    }
-  }
+    });
 
+    updateCounter();
+  });
+
+  // === 🔍 BUSCADOR DE BOLETOS ===
+  const buscarBtn = document.getElementById('buscarBtn');
+  const buscarInput = document.getElementById('buscarNumero');
+
+  buscarBtn.addEventListener('click', () => {
+    const numero = buscarInput.value.trim();
+    if (!numero) return alert('Ingresa un número de boleto');
+    const numStr = String(parseInt(numero)).padStart(3, '0');
+    const boleto = Array.from(document.querySelectorAll('.boleto')).find(b => b.textContent === numStr);
+    if (!boleto) return alert('No se encontró ese número de boleto');
+
+    boleto.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    boleto.classList.add('brillo');
+    setTimeout(() => boleto.classList.remove('brillo'), 2000);
+  });
+
+  // === CARGAR ESTADO ===
   window.refreshBoletos = async function() {
     await loadState();
   };
 
-  // Cargar estado inicial
   loadState();
 });
