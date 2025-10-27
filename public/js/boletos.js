@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const buscarAzar = document.getElementById('buscarAzar');
   const cerrarAzar = document.getElementById('cerrarAzar');
   const listaAzar = document.getElementById('listaAzar');
+  let boletosAzarSeleccionados = [];
 
   azarBtn.addEventListener('click', () => {
     azarModal.style.display = 'flex';
@@ -160,19 +161,32 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Elegir boletos aleatorios
     const elegidos = [];
     while (elegidos.length < cantidad && disponibles.length > 0) {
       const idx = Math.floor(Math.random() * disponibles.length);
       elegidos.push(disponibles.splice(idx, 1)[0]);
     }
 
-    // Limpiar selección anterior
+    boletosAzarSeleccionados = elegidos;
+    listaAzar.innerHTML = `
+      <p>Boletos elegidos al azar:</p>
+      <strong>${elegidos.join(', ')}</strong>
+      <div style="margin-top:10px;">
+        <button class="btn" id="confirmarAzar">Elegir boletos</button>
+      </div>
+    `;
+
+    document.getElementById('confirmarAzar').addEventListener('click', () => {
+      seleccionarBoletosAzar();
+    });
+  });
+
+  // Seleccionar boletos al azar y bajar al formulario
+  function seleccionarBoletosAzar() {
     seleccionados.clear();
     document.querySelectorAll('.boleto.seleccionado').forEach(b => b.classList.remove('seleccionado'));
 
-    // Marcar seleccionados
-    elegidos.forEach(num => {
+    boletosAzarSeleccionados.forEach(num => {
       const el = Array.from(document.querySelectorAll('.boleto')).find(b => b.textContent === num);
       if (el) {
         el.classList.add('seleccionado');
@@ -180,11 +194,18 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    document.getElementById('seleccionados').value = elegidos.join(', ');
-    listaAzar.innerHTML = `<p>Boletos elegidos al azar:</p><strong>${elegidos.join(', ')}</strong>`;
-
+    document.getElementById('seleccionados').value = boletosAzarSeleccionados.join(', ');
     updateCounter();
-  });
+
+    // Cierra el modal y baja al formulario
+    azarModal.style.display = 'none';
+    const form = document.getElementById('compraForm');
+    if (form) {
+      form.scrollIntoView({ behavior: 'smooth' });
+      const primerCampo = form.querySelector('input');
+      if (primerCampo) primerCampo.focus();
+    }
+  }
 
   window.refreshBoletos = async function() {
     await loadState();
