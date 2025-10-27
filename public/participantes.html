@@ -1,31 +1,160 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Participantes - Moto Rifas Universal</title>
 <link rel="stylesheet" href="css/style.css">
-<style>.participant{border-bottom:1px solid #eee;padding:8px;margin-bottom:6px}</style>
+<style>
+  .participant {
+    border-bottom: 1px solid #eee;
+    padding: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+  }
+  .participant-name {
+    font-weight: bold;
+  }
+  .tickets {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    background: #f9f9f9;
+    margin-top: 4px;
+    padding: 0 8px;
+    border-radius: 4px;
+  }
+  .tickets.show {
+    padding: 8px;
+    max-height: 500px;
+  }
+  .highlight {
+    background-color: yellow;
+    font-weight: bold;
+    border-radius: 3px;
+    padding: 2px 4px;
+  }
+  /* Buscador */
+  #searchContainer {
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  #searchInput {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  #searchBtn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--accent, #ffcc00);
+    cursor: pointer;
+    font-weight: bold;
+  }
+</style>
 </head>
 <body>
 <header class="header"><div class="container"><h1 class="brand">Moto Rifas Universal</h1></div></header>
-<nav class="nav"><a href="index.html">Inicio</a><a href="comprar.html">Comprar boletos</a><a href="participantes.html">Participantes</a><a href="pagos.html">Cómo pagar</a><a href="privacidad.html">Aviso de privacidad</a><a href="contacto.html">Contacto</a></nav>
-<main><div class="container">
-<h2>Participantes</h2>
-<div id="participantsList">Cargando participantes...</div>
-</div></main>
+<nav class="nav">
+  <a href="index.html">Inicio</a>
+  <a href="comprar.html">Comprar boletos</a>
+  <a href="participantes.html" class="active">Participantes</a>
+  <a href="pagos.html">Cómo pagar</a>
+  <a href="privacidad.html">Aviso de privacidad</a>
+  <a href="contacto.html">Contacto</a>
+</nav>
+
+<main>
+<div class="container">
+  <h2>Participantes</h2>
+
+  <!-- Buscador -->
+  <div id="searchContainer">
+    <input type="text" id="searchInput" placeholder="Buscar por número de boleto...">
+    <button id="searchBtn">🔍</button>
+  </div>
+
+  <div id="participantsList">Cargando participantes...</div>
+</div>
+</main>
+
 <footer class="footer"><div class="container">&copy; 2025 Moto Rifas Universal</div></footer>
+
 <script>
+let participantesGlobal = [];
+
 async function loadParticipants(){
   const el = document.getElementById('participantsList');
   try {
     const res = await fetch('/api/participantes');
     const data = await res.json();
-    if(data.length === 0) el.innerHTML = '<p>No hay participantes confirmados aún.</p>';
-    else el.innerHTML = data.map(p=>`<div class="participant"><strong>${p.nombre}</strong> — Boletos: ${p.boletos.join(', ')}</div>`).join('');
+    participantesGlobal = data; // Guardamos globalmente para el buscador
+    renderParticipants(data);
   } catch(e){
     el.innerHTML = '<p>No se pudo cargar participantes.</p>';
     console.error(e);
   }
 }
+
+// Función para renderizar participantes en el contenedor
+function renderParticipants(data, highlight = '') {
+  const el = document.getElementById('participantsList');
+  if(data.length === 0){
+    el.innerHTML = '<p>No hay participantes confirmados aún.</p>';
+    return;
+  }
+  el.innerHTML = '';
+  data.forEach(p => {
+    const div = document.createElement('div');
+    div.classList.add('participant');
+
+    const name = document.createElement('div');
+    name.classList.add('participant-name');
+    name.textContent = p.nombre;
+
+    const tickets = document.createElement('div');
+    tickets.classList.add('tickets');
+
+    // Resaltar boletos que coincidan con highlight
+    if(highlight) {
+      const ticketsHTML = p.boletos.map(b => {
+        return b.includes(highlight) ? `<span class="highlight">${b}</span>` : b;
+      }).join(', ');
+      tickets.innerHTML = ticketsHTML;
+    } else {
+      tickets.textContent = p.boletos.join(', ');
+    }
+
+    name.addEventListener('click', () => {
+      tickets.classList.toggle('show');
+    });
+
+    div.appendChild(name);
+    div.appendChild(tickets);
+    el.appendChild(div);
+  });
+}
+
+// Función para filtrar participantes por número de boleto y resaltar
+function searchBoleto() {
+  const query = document.getElementById('searchInput').value.trim();
+  if(!query) {
+    renderParticipants(participantesGlobal);
+    return;
+  }
+  const filtered = participantesGlobal.filter(p => p.boletos.some(b => b.includes(query)));
+  renderParticipants(filtered, query);
+}
+
+// Eventos de búsqueda
+document.getElementById('searchInput').addEventListener('input', searchBoleto);
+document.getElementById('searchBtn').addEventListener('click', searchBoleto);
+
 loadParticipants();
 </script>
-</body></html>
+</body>
+</html>
