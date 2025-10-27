@@ -8,8 +8,8 @@
 }
 
 /* RESET Y BASE */
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
 .container{max-width:1100px;margin:0 auto;padding:0 16px}
 
 /* HEADER */
@@ -67,10 +67,10 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:
 
 .boletos-grid{
   display:grid;
-  grid-template-columns:repeat(10,1fr);
+  grid-template-columns:repeat(auto-fit,minmax(50px,1fr));
   gap:8px;
   margin-top:12px;
-  max-width:920px;
+  max-width:100%;
   margin-left:auto;
   margin-right:auto;
 }
@@ -130,6 +130,8 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:
   background:rgba(0,0,0,0.5);
   justify-content:center;
   align-items:center;
+  overflow-y:auto;
+  padding:16px;
 }
 
 .modal.show{display:flex}
@@ -138,7 +140,7 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:
   background:#fff;
   padding:20px;
   border-radius:12px;
-  width:90%;
+  width:100%;
   max-width:400px;
   box-shadow:0 4px 10px rgba(0,0,0,0.3);
   text-align:center;
@@ -169,4 +171,21 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:
   display:flex;
   justify-content:space-between;
   gap:10px;
+}
+
+/* ===================== */
+/* === PARTICIPANTES === */
+/* ===================== */
+.participant{border-bottom:1px solid #eee;padding:8px;margin-bottom:6px;cursor:pointer}
+.participant .boletos{display:none;padding:6px 0;color:#333}
+.participant.active .boletos{display:block}
+
+/* ===================== */
+/* === AJUSTES RESPONSIVE ADICIONALES === */
+/* ===================== */
+@media(max-width:600px){
+  .form-row input{width:100%;}
+  .boletos-grid{grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:6px}
+  .controls{flex-direction:column;align-items:center}
+  .modal-content{padding:16px;}
 }
