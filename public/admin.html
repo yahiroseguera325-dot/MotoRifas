@@ -1,20 +1,65 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin - Moto Rifas Universal</title><link rel="stylesheet" href="css/style.css"><style>.admin-box{max-width:980px;margin:30px auto;padding:20px;background:#fff;border-radius:8px}.field{margin-bottom:12px}.danger{color:#d9534f;font-weight:700}.venta{border-bottom:1px solid #eee;padding:8px;margin-bottom:8px}</style></head><body>
-  <header class="header"><div class="container"><h1 class="brand">Admin — Moto Rifas Universal</h1></div></header>
-  <nav class="nav"><a href="index.html">Inicio</a><a href="comprar.html">Comprar boletos</a><a href="admin.html">Admin</a></nav>
-  <main><div class="admin-box">
-    <h2>Acceso de administrador</h2>
-    <div class="field"><label>Contraseña:</label><br><input type="password" id="adminPass" placeholder="Ingresa la contraseña"><button class="btn" id="loginBtn">Entrar</button></div>
-    <div id="adminArea" style="display:none">
-      <h3>Compras pendientes</h3><div id="ventasList"></div>
-      <h3>Boletos ocupados</h3><div id="ocupList"></div>
-      <h3>Acciones</h3>
-      <div class="field"><button class="btn" id="reiniciarBtn">Reiniciar todo (nueva rifa)</button></div>
-      <div class="field"><label>Total de boletos</label><input type="number" id="totalInput" placeholder="Ej. 200"><button class="btn" id="setTotal">Actualizar total</button></div>
-      <div class="field"><label>Precio por boleto</label><input type="number" id="priceInput" placeholder="Ej. 5"><button class="btn" id="setPrice">Actualizar precio</button></div>
-      <p class="danger">Nota: cambios afectan los datos en servidor.</p>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin - Moto Rifas Universal</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.admin-box{max-width:980px;margin:30px auto;padding:20px;background:#fff;border-radius:8px}
+.field{margin-bottom:12px}
+.danger{color:#d9534f;font-weight:700}
+.venta, .participant{border-bottom:1px solid #eee;padding:8px;margin-bottom:8px;cursor:pointer}
+.participant-details{display:none;margin-top:6px;margin-left:12px;background:#f9f9f9;padding:8px;border-radius:6px}
+</style>
+</head>
+<body>
+<header class="header"><div class="container"><h1 class="brand">Admin — Moto Rifas Universal</h1></div></header>
+<nav class="nav"><a href="index.html">Inicio</a><a href="comprar.html">Comprar boletos</a><a href="admin.html" class="active">Admin</a></nav>
+<main>
+<div class="admin-box">
+  <h2>Acceso de administrador</h2>
+  <div class="field">
+    <label>Contraseña:</label><br>
+    <input type="password" id="adminPass" placeholder="Ingresa la contraseña">
+    <button class="btn" id="loginBtn">Entrar</button>
+  </div>
+
+  <div id="adminArea" style="display:none">
+
+    <h3>Modelo de la moto</h3>
+    <div class="field">
+      <input type="text" id="motoModelo" placeholder="Ej. Yamaha R1">
+      <button class="btn" id="setMotoModelo">Actualizar modelo</button>
     </div>
-  </div></main><footer class="footer"><div class="container">&copy; 2025 Moto Rifas Universal</div></footer>
+
+    <h3>Compras pendientes</h3>
+    <div id="ventasList">Cargando...</div>
+
+    <h3>Participantes confirmados</h3>
+    <div id="confirmadosList">Cargando...</div>
+
+    <h3>Boletos ocupados</h3>
+    <div id="ocupList"></div>
+
+    <h3>Acciones</h3>
+    <div class="field"><button class="btn" id="reiniciarBtn">Reiniciar todo (nueva rifa)</button></div>
+    <div class="field">
+      <label>Total de boletos</label>
+      <input type="number" id="totalInput" placeholder="Ej. 200">
+      <button class="btn" id="setTotal">Actualizar total</button>
+    </div>
+    <div class="field">
+      <label>Precio por boleto</label>
+      <input type="number" id="priceInput" placeholder="Ej. 5">
+      <button class="btn" id="setPrice">Actualizar precio</button>
+    </div>
+    <p class="danger">Nota: cambios afectan los datos en servidor.</p>
+
+  </div>
+</div>
+</main>
+<footer class="footer"><div class="container">&copy; 2025 Moto Rifas Universal</div></footer>
 <script>
 (function(){
   const PASS = 'Beli2003.';
@@ -22,49 +67,88 @@
   const adminArea = document.getElementById('adminArea');
   const ventasList = document.getElementById('ventasList');
   const ocupList = document.getElementById('ocupList');
+  const confirmadosList = document.getElementById('confirmadosList');
+  const motoModeloInput = document.getElementById('motoModelo');
+
   loginBtn.addEventListener('click', async ()=>{
     const p = document.getElementById('adminPass').value;
     if(p !== PASS){ alert('Contraseña incorrecta'); return; }
     adminArea.style.display = 'block';
     await loadData();
   });
+
   async function loadData(){
-    // ventas
+    // ventas pendientes
     const res = await fetch('/api/ventas?pass=' + encodeURIComponent(PASS));
     const ventas = await res.json();
-    ventasList.innerHTML = ventas.length ? ventas.map(v=>`<div class="venta"><strong>${v.nombre}</strong> (${v.correo} / ${v.telefono}) — Boletos: ${v.boletos.join(', ')} — Estado: <em>${v.status}</em><br>
-      <button class="btn" onclick="confirmar('${v.id}')">Confirmar</button> <button class="btn" onclick="declinar('${v.id}')">Declinar</button></div>`).join('') : '<p>No hay compras.</p>';
-    // ocupados
+    ventasList.innerHTML = ventas.length ? ventas.filter(v=>v.status==='pendiente').map(v=>`
+      <div class="venta">
+        <strong>${v.nombre}</strong> — Boletos: ${v.boletos.join(', ')}
+        <br>
+        <button class="btn" onclick="confirmar('${v.id}')">Confirmar</button>
+        <button class="btn" onclick="declinar('${v.id}')">Declinar</button>
+      </div>
+    `).join('') : '<p>No hay compras pendientes.</p>';
+
+    // participantes confirmados
+    confirmadosList.innerHTML = ventas.length ? ventas.filter(v=>v.status==='confirmado').map(v=>`
+      <div class="participant" onclick="toggleDetails(this)">
+        <strong>${v.nombre}</strong>
+        <div class="participant-details">
+          <p><strong>Correo:</strong> ${v.correo}</p>
+          <p><strong>Teléfono:</strong> ${v.telefono}</p>
+          <p><strong>Boletos:</strong> ${v.boletos.join(', ')}</p>
+          <button class="btn" onclick="enviarComprobante(event,'${v.nombre}','${v.telefono}','${v.boletos.join(', ')}')">Enviar comprobante</button>
+        </div>
+      </div>
+    `).join('') : '<p>No hay participantes confirmados.</p>';
+
+    // boletos ocupados
     const state = await (await fetch('/api/state')).json();
     ocupList.innerHTML = state.ocupados.length ? state.ocupados.map(n=>`<span style="display:inline-block;padding:6px 8px;margin:4px;background:#f5f5f5;border-radius:6px">${n}</span>`).join('') : '<p>No hay boletos ocupados.</p>';
   }
+
   window.confirmar = async function(id){
     if(!confirm('Confirmar compra ' + id + '?')) return;
     const res = await fetch('/api/admin/confirmar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,pass:PASS})});
-    if(res.ok){ alert('Confirmada'); await loadData(); window.refreshBoletos && window.refreshBoletos(); }
+    if(res.ok){ alert('Compra confirmada'); await loadData(); window.refreshBoletos && window.refreshBoletos(); }
     else alert('Error');
   };
+
   window.declinar = async function(id){
     if(!confirm('Declinar compra ' + id + '?')) return;
     const res = await fetch('/api/admin/declinar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,pass:PASS})});
-    if(res.ok){ alert('Declinada'); await loadData(); window.refreshBoletos && window.refreshBoletos(); }
+    if(res.ok){ alert('Compra declinada'); await loadData(); window.refreshBoletos && window.refreshBoletos(); }
     else alert('Error');
   };
+
+  window.toggleDetails = function(el){
+    const detalles = el.querySelector('.participant-details');
+    if(detalles) detalles.style.display = detalles.style.display==='none'?'block':'none';
+  };
+
+  window.enviarComprobante = function(e,nombre,telefono,boletos){
+    e.stopPropagation(); // evitar colapsar
+    const modelo = motoModeloInput.value || 'la moto rifada';
+    const mensaje = `FELICIDADES ${nombre}! SU PAGO HA SIDO CONFIRMADO.\nAhora participa por ${modelo}.\nBoletos: ${boletos}\n¡Mucha suerte!`;
+    const url = `https://wa.me/${telefono.replace(/\D/g,'')}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url,'_blank');
+  };
+
   document.getElementById('reiniciarBtn').addEventListener('click', async ()=>{
     if(!confirm('Reiniciar todo (eliminar ventas y liberar boletos)?')) return;
     const res = await fetch('/api/admin/reiniciar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pass:PASS})});
     if(res.ok){ alert('Reiniciado'); await loadData(); window.refreshBoletos && window.refreshBoletos(); }
   });
+
   document.getElementById('setTotal').addEventListener('click', async ()=>{
     const n = parseInt(document.getElementById('totalInput').value);
     if(!n) return alert('Ingresa total válido');
     const res = await fetch('/api/admin/setconfig',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({totalBoletos:n,pass:PASS})});
     if(res.ok){ alert('Total actualizado'); await loadData(); window.refreshBoletos && window.refreshBoletos(); }
   });
+
   document.getElementById('setPrice').addEventListener('click', async ()=>{
     const p = parseFloat(document.getElementById('priceInput').value);
     if(!p && p!==0) return alert('Ingresa precio válido');
-    const res = await fetch('/api/admin/setconfig',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticketPrice:p,pass:PASS})});
-    if(res.ok){ alert('Precio actualizado'); await loadData(); window.refreshBoletos && window.refreshBoletos(); }
-  });
-})();</script></body></html>
+    const res = await fetch('/api/admin/setconfig',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket
